@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Attendance Calculator</h2>
+        <label>Classes Present:</label>
+        <input type="number" id="present" placeholder="Enter classes attended">
+        
+        <label>Classes Absent:</label>
+        <input type="number" id="absent" placeholder="Enter classes missed">
+        
+        <label>Total Classes:</label>
+        <input type="number" id="total" placeholder="Enter total classes">
+        
+        <button onclick="calculateAttendance()">Calculate</button>
+        
+        <h3>Results</h3>
+        <p id="attendanceResult"></p>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
