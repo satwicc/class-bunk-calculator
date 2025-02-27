@@ -4,80 +4,355 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attendance Calculator</title>
-    <link rel="stylesheet" href="styles.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            background: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
+            background-color: #f5f5f5;
+            color: #333;
         }
-        input {
-            width: 80%;
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .input-section, .result-section, .prediction-section {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="number"], input[type="text"] {
+            width: 100%;
             padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
+            border: 1px solid #ddd;
             border-radius: 5px;
+            font-size: 16px;
         }
         button {
-            padding: 10px 20px;
-            background: #28a745;
+            background-color: #3498db;
             color: white;
             border: none;
+            padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            margin-right: 10px;
         }
         button:hover {
-            background: #218838;
+            background-color: #2980b9;
+        }
+        .result-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f8f9fa;
+        }
+        .emoji {
+            margin-right: 8px;
+        }
+        .success {
+            color: #27ae60;
+        }
+        .warning {
+            color: #e67e22;
+        }
+        .danger {
+            color: #e74c3c;
+        }
+        .hidden {
+            display: none;
+        }
+        .notes {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 10px;
+            font-style: italic;
+        }
+        #errorMessage {
+            color: #e74c3c;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        hr {
+            border: 0;
+            height: 1px;
+            background-color: #ddd;
+            margin: 20px 0;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Attendance Calculator</h2>
-        <label>Classes Present:</label>
-        <input type="number" id="present" placeholder="Enter classes attended">
+    <h1>Attendance Calculator</h1>
+    
+    <div class="input-section">
+        <h2>Input Attendance Data</h2>
+        <p class="notes">Enter ANY 2 of the following 3 values. The third value will be calculated automatically.</p>
+        <div id="errorMessage"></div>
         
-        <label>Classes Absent:</label>
-        <input type="number" id="absent" placeholder="Enter classes missed">
+        <div class="form-group">
+            <label for="presentClasses">Classes Present:</label>
+            <input type="number" id="presentClasses" placeholder="Number of classes attended">
+        </div>
         
-        <label>Total Classes:</label>
-        <input type="number" id="total" placeholder="Enter total classes">
+        <div class="form-group">
+            <label for="absentClasses">Classes Absent:</label>
+            <input type="number" id="absentClasses" placeholder="Number of classes missed">
+        </div>
         
-        <button onclick="calculateAttendance()">Calculate</button>
+        <div class="form-group">
+            <label for="totalClasses">Total Classes:</label>
+            <input type="number" id="totalClasses" placeholder="Total number of classes">
+        </div>
         
-        <h3>Results</h3>
-        <p id="attendanceResult"></p>
+        <div class="form-group">
+            <label for="requiredAttendance">Required Attendance Percentage (%):</label>
+            <input type="number" id="requiredAttendance" placeholder="Minimum required attendance" min="0" max="100" value="75">
+        </div>
+        
+        <div class="form-group">
+            <label for="targetAttendance">Target Attendance Percentage (%):</label>
+            <input type="number" id="targetAttendance" placeholder="Your target attendance" min="0" max="100" value="85">
+        </div>
+        
+        <button id="calculateBtn">Calculate</button>
+        <button id="resetBtn">Reset</button>
     </div>
-    <script src="script.js">
-        function calculateAttendance() {
-    let present = parseInt(document.getElementById("present").value) || 0;
-    let absent = parseInt(document.getElementById("absent").value) || 0;
-    let total = parseInt(document.getElementById("total").value) || (present + absent);
     
-    if (total === 0) {
-        document.getElementById("attendanceResult").innerText = "Please enter at least two values.";
-        return;
-    }
+    <div class="result-section hidden" id="resultSection">
+        <h2>Attendance Summary</h2>
+        <div class="result-item" id="totalClassesResult"></div>
+        <div class="result-item" id="presentClassesResult"></div>
+        <div class="result-item" id="absentClassesResult"></div>
+        <div class="result-item" id="currentAttendanceResult"></div>
+        <div class="result-item" id="requiredAttendanceResult"></div>
+        <div class="result-item" id="attendanceStatusResult"></div>
+        <div class="result-item" id="skippableClassesResult"></div>
+        <div class="result-item" id="targetResult"></div>
+    </div>
     
-    if (present > total || absent > total || present < 0 || absent < 0) {
-        document.getElementById("attendanceResult").innerText = "Invalid input! Ensure Present ≤ Total and no negative values.";
-        return;
-    }
+    <div class="prediction-section hidden" id="predictionSection">
+        <h2>Attendance Predictions</h2>
+        
+        <div class="form-group">
+            <label for="skipMore">Additional Classes to Skip:</label>
+            <input type="number" id="skipMore" placeholder="Number of classes you might skip" min="0" value="1">
+        </div>
+        <div class="result-item" id="skipPredictionResult"></div>
+        
+        <hr>
+        
+        <div class="form-group">
+            <label for="attendMore">Additional Classes to Attend:</label>
+            <input type="number" id="attendMore" placeholder="Number of extra classes you might attend" min="0" value="5">
+        </div>
+        <div class="result-item" id="attendPredictionResult"></div>
+        
+        <button id="predictBtn">Update Predictions</button>
+    </div>
     
-    let attendancePercentage = (present / total) * 100;
-    document.getElementById("attendanceResult").innerText = `Current Attendance: ${attendancePercentage.toFixed(2)}%`;
-}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const calculateBtn = document.getElementById('calculateBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const predictBtn = document.getElementById('predictBtn');
+            const resultSection = document.getElementById('resultSection');
+            const predictionSection = document.getElementById('predictionSection');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            let totalClasses, presentClasses, absentClasses, attendancePercentage;
+            
+            calculateBtn.addEventListener('click', function() {
+                calculateAttendance();
+            });
+            
+            resetBtn.addEventListener('click', function() {
+                resetCalculator();
+            });
+            
+            predictBtn.addEventListener('click', function() {
+                updatePredictions();
+            });
+            
+            function calculateAttendance() {
+                // Get input values
+                const totalInput = document.getElementById('totalClasses').value.trim();
+                const presentInput = document.getElementById('presentClasses').value.trim();
+                const absentInput = document.getElementById('absentClasses').value.trim();
+                const requiredAttendanceInput = document.getElementById('requiredAttendance').value.trim();
+                const targetAttendanceInput = document.getElementById('targetAttendance').value.trim();
+                
+                // Convert to numbers
+                totalClasses = totalInput ? parseInt(totalInput) : null;
+                presentClasses = presentInput ? parseInt(presentInput) : null;
+                absentClasses = absentInput ? parseInt(absentInput) : null;
+                
+                // Clear error message
+                errorMessage.textContent = '';
+                
+                // Calculate the third value
+                if (totalClasses === null && presentClasses !== null && absentClasses !== null) {
+                    totalClasses = presentClasses + absentClasses;
+                } else if (presentClasses === null && totalClasses !== null && absentClasses !== null) {
+                    presentClasses = totalClasses - absentClasses;
+                } else if (absentClasses === null && totalClasses !== null && presentClasses !== null) {
+                    absentClasses = totalClasses - presentClasses;
+                }
+                
+                // Validate inputs
+                if ([totalClasses, presentClasses, absentClasses].filter(val => val !== null).length < 2) {
+                    errorMessage.textContent = '⚠️ Please enter at least 2 values! Try again.';
+                    return;
+                }
+                
+                if (presentClasses > totalClasses || presentClasses < 0 || absentClasses < 0) {
+                    errorMessage.textContent = '❌ Invalid input! Ensure Present ≤ Total and no negative values.';
+                    return;
+                }
+                
+                const requiredAttendance = parseFloat(requiredAttendanceInput);
+                if (isNaN(requiredAttendance) || requiredAttendance < 0 || requiredAttendance > 100) {
+                    errorMessage.textContent = '⚠️ Invalid percentage! Enter a value between 0 and 100.';
+                    return;
+                }
+                
+                const targetAttendance = parseFloat(targetAttendanceInput);
+                if (isNaN(targetAttendance) || targetAttendance < 0 || targetAttendance > 100) {
+                    errorMessage.textContent = '⚠️ Invalid percentage! Enter a value between 0 and 100.';
+                    return;
+                }
+                
+                // Calculate attendance percentage
+                attendancePercentage = (presentClasses / totalClasses) * 100;
+                
+                // Required Attendance Calculator
+                let neededClasses = null;
+                if (attendancePercentage < requiredAttendance) {
+                    neededClasses = 0;
+                    let newTotal = totalClasses;
+                    let newPresent = presentClasses;
+                    
+                    while ((newPresent / newTotal) * 100 < requiredAttendance) {
+                        neededClasses++;
+                        newTotal++;
+                        newPresent++;
+                    }
+                }
+                
+                // Skippable Classes
+                let maxSkippableClasses = 0;
+                if (attendancePercentage > requiredAttendance) {
+                    let newPresent = presentClasses;
+                    while (newPresent > 0 && (newPresent / totalClasses) * 100 > requiredAttendance) {
+                        maxSkippableClasses++;
+                        newPresent--;
+                    }
+                    
+                    maxSkippableClasses--;
+                }
+                
+                // Target Attendance
+                let extraNeededClasses = null;
+                if (targetAttendance > attendancePercentage) {
+                    extraNeededClasses = 0;
+                    let newTotal = totalClasses;
+                    let newPresent = presentClasses;
+                    
+                    while ((newPresent / newTotal) * 100 < targetAttendance) {
+                        extraNeededClasses++;
+                        newTotal++;
+                        newPresent++;
+                    }
+                }
+                
+                // Display Results
+                document.getElementById('totalClassesResult').innerHTML = `<span class="emoji">📌</span> Total Classes: ${totalClasses}`;
+                document.getElementById('presentClassesResult').innerHTML = `<span class="emoji">✔️</span> Classes Attended: ${presentClasses}`;
+                document.getElementById('absentClassesResult').innerHTML = `<span class="emoji">❌</span> Classes Missed: ${absentClasses}`;
+                document.getElementById('currentAttendanceResult').innerHTML = `<span class="emoji">✅</span> Current Attendance: ${attendancePercentage.toFixed(2)}%`;
+                document.getElementById('requiredAttendanceResult').innerHTML = `<span class="emoji">🎯</span> Required Attendance: ${requiredAttendance}%`;
+                
+                if (neededClasses !== null) {
+                    document.getElementById('attendanceStatusResult').innerHTML = 
+                        `<span class="emoji warning">⚠️</span> You need to attend at least <strong>${neededClasses}</strong> more classes to reach ${requiredAttendance}% attendance.`;
+                } else {
+                    document.getElementById('attendanceStatusResult').innerHTML = 
+                        `<span class="emoji success">🎉</span> Your attendance is already above ${requiredAttendance}%.`;
+                }
+                
+                if (maxSkippableClasses > 0) {
+                    document.getElementById('skippableClassesResult').innerHTML = 
+                        `<span class="emoji">🛑</span> You can skip up to <strong>${maxSkippableClasses}</strong> more classes and still stay above ${requiredAttendance}%.`;
+                } else {
+                    document.getElementById('skippableClassesResult').innerHTML = 
+                        `<span class="emoji warning">⚠️</span> Skipping any more classes will drop you below ${requiredAttendance}%.`;
+                }
+                
+                if (extraNeededClasses !== null) {
+                    document.getElementById('targetResult').innerHTML = 
+                        `<span class="emoji">🎯</span> To reach ${targetAttendance}%, you need to attend at least <strong>${extraNeededClasses}</strong> more classes without missing any.`;
+                } else {
+                    document.getElementById('targetResult').innerHTML = 
+                        `<span class="emoji success">🎉</span> Your attendance is already above your target of ${targetAttendance}%.`;
+                }
+                
+                // Show results and prediction sections
+                resultSection.classList.remove('hidden');
+                predictionSection.classList.remove('hidden');
+                
+                // Update the input fields with calculated values
+                document.getElementById('totalClasses').value = totalClasses;
+                document.getElementById('presentClasses').value = presentClasses;
+                document.getElementById('absentClasses').value = absentClasses;
+                
+                // Update predictions
+                updatePredictions();
+            }
+            
+            function updatePredictions() {
+                const skipMore = parseInt(document.getElementById('skipMore').value) || 0;
+                const attendMore = parseInt(document.getElementById('attendMore').value) || 0;
+                
+                if (skipMore >= 0) {
+                    const newAttendanceSkip = (presentClasses / (totalClasses + skipMore)) * 100;
+                    document.getElementById('skipPredictionResult').innerHTML = 
+                        `<span class="emoji ${newAttendanceSkip < parseFloat(document.getElementById('requiredAttendance').value) ? 'danger' : 'warning'}">
+                        ⚠️</span> If you skip <strong>${skipMore}</strong> more classes, your attendance will be: <strong>${newAttendanceSkip.toFixed(2)}%</strong>`;
+                }
+                
+                if (attendMore >= 0) {
+                    const newAttendanceAttend = ((presentClasses + attendMore) / (totalClasses + attendMore)) * 100;
+                    document.getElementById('attendPredictionResult').innerHTML = 
+                        `<span class="emoji success">✅</span> If you attend <strong>${attendMore}</strong> more classes, your attendance will be: <strong>${newAttendanceAttend.toFixed(2)}%</strong>`;
+                }
+            }
+            
+            function resetCalculator() {
+                document.getElementById('totalClasses').value = '';
+                document.getElementById('presentClasses').value = '';
+                document.getElementById('absentClasses').value = '';
+                document.getElementById('requiredAttendance').value = '75';
+                document.getElementById('targetAttendance').value = '85';
+                document.getElementById('skipMore').value = '1';
+                document.getElementById('attendMore').value = '5';
+                
+                errorMessage.textContent = '';
+                resultSection.classList.add('hidden');
+                predictionSection.classList.add('hidden');
+            }
+        });
     </script>
 </body>
 </html>
