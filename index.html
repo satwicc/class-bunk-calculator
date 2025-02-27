@@ -59,6 +59,25 @@
         <h3>Results</h3>
         <p id="attendanceResult"></p>
     </div>
-    <script src="script.js"></script>
+    <script src="script.js">
+        function calculateAttendance() {
+    let present = parseInt(document.getElementById("present").value) || 0;
+    let absent = parseInt(document.getElementById("absent").value) || 0;
+    let total = parseInt(document.getElementById("total").value) || (present + absent);
+    
+    if (total === 0) {
+        document.getElementById("attendanceResult").innerText = "Please enter at least two values.";
+        return;
+    }
+    
+    if (present > total || absent > total || present < 0 || absent < 0) {
+        document.getElementById("attendanceResult").innerText = "Invalid input! Ensure Present ≤ Total and no negative values.";
+        return;
+    }
+    
+    let attendancePercentage = (present / total) * 100;
+    document.getElementById("attendanceResult").innerText = `Current Attendance: ${attendancePercentage.toFixed(2)}%`;
+}
+    </script>
 </body>
 </html>
